@@ -1,8 +1,14 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import RootNavigator from './src/Navigation/RootNavigator';
+import {Provider} from 'react-redux';
+import store from './src/redux/app/store';
 
 const App = () => {
-  return <View></View>;
+  return (
+    <Provider store={store}>
+      <RootNavigator />
+    </Provider>
+  );
 };
 
 export default App;
