@@ -11,7 +11,11 @@ import {
 } from 'react-native';
 import {GLOBALSTYLE, COLORS} from '../constants/Theme';
 import {useSelector, useDispatch} from 'react-redux';
-import {fetchMovies} from '../redux/features/popularMovies/popularMoviesSlice';
+import {
+  fetchMovies,
+  addFavorite,
+  removeFavorite,
+} from '../redux/features/popularMovies/popularMoviesSlice';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Movies = () => {
@@ -21,6 +25,27 @@ const Movies = () => {
   useEffect(() => {
     dispatch(fetchMovies());
   }, []);
+
+  const addToFavorites = movie => dispatch(addFavorite(movie));
+
+  const removeFromFavorites = movie => dispatch(removeFavorite(movie));
+
+  const handleAddFavorite = movie => {
+    addToFavorites(movie);
+  };
+
+  const handleRemoveFavorite = movie => {
+    removeFromFavorites(movie);
+  };
+
+  const exists = movie => {
+    if (
+      popularMovies.favorites.filter(item => item.id === movie.id).length > 0
+    ) {
+      return true;
+    }
+    return false;
+  };
 
   const renderItemView = ({item}) => {
     const IMAGE_URL = 'https://image.tmdb.org/t/p/w185' + item.poster_path;
@@ -44,10 +69,14 @@ const Movies = () => {
               />
               <Text style={{marginLeft: 10}}>{item.vote_count}</Text>
               <TouchableOpacity
-                onPress={() => console.log('Added to Fav!')}
+                onPress={() =>
+                  exists(item)
+                    ? handleRemoveFavorite(item)
+                    : handleAddFavorite(item)
+                }
                 style={styles.favIconStyle}>
                 <MaterialIcons
-                  name="favorite-outline"
+                  name={exists(item) ? 'favorite' : 'favorite-outline'}
                   size={32}
                   color="orange"
                 />
@@ -73,7 +102,7 @@ const Movies = () => {
           </Text>
         </View>
       ) : null}
-      {!popularMovies.loading && popularMovies.movies.length ? (
+      {!popularMovies.loading && popularMovies.movies.length >= 1 ? (
         <View style={GLOBALSTYLE.containerStyle}>
           <Text style={GLOBALSTYLE.headingStyle}>Popular Movies</Text>
           <FlatList
@@ -85,7 +114,7 @@ const Movies = () => {
         </View>
       ) : (
         <View style={GLOBALSTYLE.rootContainerStyle}>
-          <Text style={GLOBALSTYLE.errorTextStyle}>Movies Data Not Found</Text>
+          <Text style={GLOBALSTYLE.errorTextStyle}>Movies Data Not Found.</Text>
         </View>
       )}
     </SafeAreaView>

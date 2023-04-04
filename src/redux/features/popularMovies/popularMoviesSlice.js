@@ -1,11 +1,11 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import {BASE_URL} from '../../../constants/Utils';
-import {act} from 'react-test-renderer';
 
 const initialState = {
   loading: false,
   movies: [],
+  favorites: [],
   error: '',
 };
 
@@ -16,6 +16,16 @@ export const fetchMovies = createAsyncThunk('popularMovies/fetchMovies', () => {
 const popularMoviesSlice = createSlice({
   name: 'popularMovies',
   initialState,
+  reducers: {
+    addFavorite: (state, action) => {
+      state.favorites = [...state.favorites, action.payload];
+    },
+    removeFavorite: (state, action) => {
+      state.favorites = state.favorites.filter(
+        movie => movie.id !== action.payload.id,
+      );
+    },
+  },
   extraReducers: builder => {
     builder.addCase(fetchMovies.pending, state => {
       state.loading = true;
@@ -34,3 +44,4 @@ const popularMoviesSlice = createSlice({
 });
 
 export default popularMoviesSlice.reducer;
+export const {addFavorite, removeFavorite} = popularMoviesSlice.actions;
